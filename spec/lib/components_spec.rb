@@ -9,7 +9,7 @@ describe "components" do
     a.should_receive(:response)
     output = a.send(:get_components_json)
   end
-  
+
   it "should show status of a specific component", :vcr do
     a = StatusPage.new
     output = capture_stdout { a.components("programming")}
