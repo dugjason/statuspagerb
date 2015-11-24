@@ -1,16 +1,17 @@
-require 'rubygems'
 require 'httparty'
 require 'yaml'
 
 class StatusPage
   attr_accessor :components_hash, :incidents_hash
 
+  API_BASE_URL = "https://api.statuspage.io/v1/".freeze
+
   def self.config
-    @@config
+    @config
   end
 
   def self.config=(config)
-    @@config = config
+    @config = config
   end
 
   def initialize
@@ -19,15 +20,13 @@ class StatusPage
     @incidents_hash = {}
 
     load_config
-    load_components
-    load_incidents
   end
-  
+
   def load_config
     config = YAML.load(File.open StatusPage.config)
     @oauth = config['oauth']
-    @base_url = config['base_url']
-    @page = config['page']
+    @base_url = config['base_url'] || API_BASE_URL
+    @page = 'pages/' + config['page']
     @account_url = @base_url + @page
   end
 
@@ -51,6 +50,7 @@ class StatusPage
   def show_all_incidents
     get_incidents_json
   end
+  alias_method :incidents, :show_all_incidents
 
   def show_unresolved_incidents
     unresolved_incidents = get_incidents_json.reject {|i| ['resolved', 'postmortem', 'completed'].include? i['status']}
